@@ -14,7 +14,6 @@ This script can be run from the command line using: $ settings.py
 """
 
 # imports 
-from tkinter import W
 import numpy as np
 
 
