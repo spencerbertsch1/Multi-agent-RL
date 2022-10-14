@@ -1,2 +1,12 @@
 numpy==1.23.4
 matplotlib==3.6.1
+
+"""
+If you want to generate mp4 video files and you are running on a Mac, then you will 
+need to brew install a few additional libraries in addition to those listed above. 
+
+$ brew install yasm
+$ brew install ffmpeg
+
+These will cover the requirements for the ffmpeg MovieWriter used by Matplotlib.Animation
+"""
