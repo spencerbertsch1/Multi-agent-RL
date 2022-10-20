@@ -24,6 +24,36 @@ import numpy as np
 from settings import Configs
 
 
+class Solution:
+
+    # NOTE: the idea for using a Solution object came from CS276 @ Dartmouth
+    # A few lines of this code were copied form an old homework from that class. (S. Bertsch Oct. 20, 2022)
+    def __init__(self, problem_name: str, model_name: str):
+        self.problem_name = problem_name
+        self.model_name = model_name
+        self.path = []
+        self.nodes_visited = 0
+        self.cost = 0
+        self.solved = False
+        self.reward = 0
+
+    def __repr__(self):
+        s_large = '-'*50
+        s_small = '-'*10
+        s = f'{s_large} \n {s_small} Problem: {self.problem_name} {s_small} \n'
+        s += f'{s_small} Model: {self.model_name} {s_small} \n'
+
+        if len(self.path) > 0: 
+            s += f'Nodes visited: {self.nodes_visited} \n'
+            s += f'Final reward: {self.reward} \n'
+            s += f'Solved: {self.solved} \n{s_large}'
+
+        else:
+            s += f'{self.model_name} failed to find a solution after searching {self.nodes_visited} nodes. \n{s_large}'
+
+        return s
+
+
 def write_animation(
     itr: Iterator[np.array],
     out_file: Path,
