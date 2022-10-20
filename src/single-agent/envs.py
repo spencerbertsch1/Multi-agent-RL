@@ -23,18 +23,19 @@ from pathlib import Path
 from datetime import datetime
 
 # local imports 
-from routines import write_animation
-
+from routines import write_animation, Solution
 
 from settings import Configs, PATH_TO_MP4S
 
 
 class StaticEnv():
 
-    def __init__(self, board: np.array, start_position: tuple, VERBOSE: bool = True):
+    def __init__(self, board: np.array, start_position: tuple, goal_positions: tuple, solution: Solution, VERBOSE: bool = True):
         self.board = board
         self.empty_board = board.copy()
+        self.solution = solution
         self.agent_positon = start_position
+        self.goal_positions = goal_positions
         self.board_x = self.board.shape[1]
         self.board_y = self.board.shape[0]
         self.VERBOSE = VERBOSE
@@ -115,29 +116,29 @@ class StaticEnv():
         print(self.board)
 
     def make_move(self, new_pos: tuple):
+
         old_pos = self.agent_positon
         self.agent_positon = new_pos
         self.board[old_pos[0]][old_pos[1]] = 0
         if self.VERBOSE: 
             self.print_board()
 
+        self.solution.path += self.agent_positon
+        self.solution.nodes_visited += 1
+
+        if self.agent_positon in self.goal_positions:
+            self.solution.solved = True
+            self.solution.reward = self.empty_board[self.agent_positon[0]][self.agent_positon[1]]
+            print(f'Game is over, final reward: {self.solution.reward}.')
+
+        
     def random_move(self):
         # get a random move from the get successors method
         new_pos = random.choice(self.get_successors())
-        
-        # collect the old position and value so we can replace them after the move 
-        old_pos = self.agent_positon
-        old_value = self.empty_board[old_pos[0]][old_pos[1]]
-        
-        # update agent position and update old value 
-        self.agent_positon = new_pos
-        self.board[old_pos[0]][old_pos[1]] = old_value
+
+        self.make_move(new_pos=new_pos)
 
 
-    # def show_board_img(self):
-    #     self.board[self.agent_positon[0]][self.agent_positon[1]] = 50
-    #     plt.imshow(self.board, interpolation='nearest')
-    #     plt.show()
 
 def make_movie():
     """
@@ -172,7 +173,7 @@ def make_movie():
 def random_walk():
     # create a demo board for testing 
     # env = StaticEnv(board=np.array([[0, 0, 0, 100], [0, np.nan, 0, -100], [0, 0, 0, 0]], dtype="object"), start_position=(2,0))
-    env = StaticEnv(board=np.array([[0, 0, 0, 100], [0, np.nan, 0, -100], [0, 0, 0, 0]]), start_position=(2,0))
+    env = StaticEnv(board=np.array([[0, 0, 0, 100], [0, np.nan, 0, -100], [0, 0, 0, 0]]), start_position=(2,0), goal_positions=((0, 3), (1, 3)))
   
     # some test code 
     env_snapshots = []
