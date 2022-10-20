@@ -111,7 +111,7 @@ class StaticEnv():
 
 
     def print_board(self):
-        self.board[self.agent_positon[0]][self.agent_positon[1]] = 50
+        self.board[self.agent_positon[0]][self.agent_positon[1]] = 999
         print(self.board)
 
     def make_move(self, new_pos: tuple):
@@ -134,13 +134,15 @@ class StaticEnv():
         self.board[old_pos[0]][old_pos[1]] = old_value
 
 
-    def show_board_img(self):
-        self.board[self.agent_positon[0]][self.agent_positon[1]] = 50
-        plt.imshow(self.board, interpolation='nearest')
-        plt.show()
+    # def show_board_img(self):
+    #     self.board[self.agent_positon[0]][self.agent_positon[1]] = 50
+    #     plt.imshow(self.board, interpolation='nearest')
+    #     plt.show()
 
-
-def main():
+def make_movie():
+    """
+    Simple funciton that generates and saves an mp4 file showing the agent's progrssion through the environment
+    """
     # create a demo board for testing 
     # env = StaticEnv(board=np.array([[0, 0, 0, 100], [0, np.nan, 0, -100], [0, 0, 0, 0]], dtype="object"), start_position=(2,0))
     env = StaticEnv(board=np.array([[0, 0, 0, 100], [0, np.nan, 0, -100], [0, 0, 0, 0]]), start_position=(2,0))
@@ -166,6 +168,21 @@ def main():
         MOV_PATH = PATH_TO_MP4S / mov_fname
         write_animation(itr=env_itr, out_file=MOV_PATH)
 
+
+def random_walk():
+    # create a demo board for testing 
+    # env = StaticEnv(board=np.array([[0, 0, 0, 100], [0, np.nan, 0, -100], [0, 0, 0, 0]], dtype="object"), start_position=(2,0))
+    env = StaticEnv(board=np.array([[0, 0, 0, 100], [0, np.nan, 0, -100], [0, 0, 0, 0]]), start_position=(2,0))
+  
+    # some test code 
+    env_snapshots = []
+    for i in range(25):
+        env.print_board()
+        env.random_move()
+        time.sleep(0.2)
+
+def main():
+    random_walk()
 
 # some test code
 if __name__ == "__main__":
