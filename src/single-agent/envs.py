@@ -113,7 +113,7 @@ class StaticEnv():
 
     def print_board(self):
         self.board[self.agent_positon[0]][self.agent_positon[1]] = 999
-        print(self.board)
+        print(self.board, '\n')
 
     def make_move(self, new_pos: tuple):
 
