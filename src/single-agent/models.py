@@ -44,20 +44,28 @@ class SARSA():
         solution = Solution(problem_name=self.problem_name, model_name='SARSA')
         env = StaticEnv(board=board, start_position=(2,0), solution=solution, goal_positions=((0, 3), (1, 3)))
     
-        # TODO use board to create initial Q-map 
-        Q_map = np.zeros((env.board_x, env.board_y, env.board[0].shape[0]))
+        # use board to create initial Q-map 
+        Q_map = np.random.rand(env.board_x, env.board_y, env.board[0].shape[0])
+
+        # iterate through all the action spaces 
+        for action in range(Q_map.shape[-1]): 
+            # and iterate through all the terminal positions
+            for goal_pos in env.goal_positions:
+                x = goal_pos[1]
+                y = goal_pos[0]
+                Q_map[action, y, x] = 0
 
         # TODO implement the SARSA algorithm here
 
         # some test code 
-        for i in range(25):
+        for i in range(50):
             print(f'CURRENT POS: {env.agent_positon}, SUCCESSORS: {env.get_successors()}')
             env.print_board()
             env.random_move()
             if env.solution.solved is True:
                 print(env.solution)
                 break
-            time.sleep(0.2)
+            time.sleep(0.1)
 
 
 def main():
