@@ -33,17 +33,19 @@ class StaticEnv():
     move_mapper: dict = {0: (-1,0), 1: (0,1), 2: (1,0), 3: (0,-1)}
     text_move_mapper: dict = {0: 'north', 1: 'east', 2: 'south', 3: 'west'}
 
-    def __init__(self, board: np.array, start_position: tuple, goal_positions: tuple, solution: Solution, VERBOSE: bool = True):
+    def __init__(self, board: np.array, start_position: tuple, goal_positions: tuple, 
+                 solution: Solution, action_space: list, VERBOSE: bool = True):
         self.board = board
         self.empty_board = board.copy()
         self.solution = solution
         self.agent_positon = start_position
         self.goal_positions = goal_positions
+        self.action_space = action_space
         self.board_x = self.board.shape[1]
         self.board_y = self.board.shape[0]
         self.VERBOSE = VERBOSE
         self.big_board = self.expand_board(board=self.board)
-        self.action_space = [0, 1, 2, 3]  # north, east, south, west 
+        
 
     def get_successors(self) -> tuple:
         """
@@ -114,33 +116,24 @@ class StaticEnv():
 
         return big_board
 
+    def initialize_agent(self):
+        """
+        simple function to initialize the agent's position on the board 
+        """
+        x = self.agent_positon[0]
+        y = self.agent_positon[1]
+        self.board[x, y] = 999
+
 
     def print_board(self):
         self.board[self.agent_positon[0]][self.agent_positon[1]] = 999
         print(self.board, '\n')
 
-    def make_move(self, new_pos: tuple):
+    def make_move(self, action: int):
 
-        old_pos = self.agent_positon
-        self.agent_positon = new_pos
-        self.board[old_pos[0]][old_pos[1]] = 0
-        if self.VERBOSE: 
-            self.print_board()
+        assert action in self.action_space, f'Action needs to be in {self.action_space}, but {action} was passed instead.'
 
-        self.solution.path += self.agent_positon
-        self.solution.nodes_visited += 1
-        self.solution.steps += 1
-
-        if self.agent_positon in self.goal_positions:
-            self.solution.solved = True
-            self.solution.reward = self.empty_board[self.agent_positon[0]][self.agent_positon[1]]
-            print(f'Game is over, final reward: {self.solution.reward}.')
-
-        
-    def random_move(self):
-
-        # get a random action
-        action = random.choice(self.action_space)
+        # get the new position from the action_mapper dict 
         print(f'MOVE: {self.text_move_mapper[action]}')
 
         # if the action is not legal, we stay in the same position and burn no fuel 
@@ -149,12 +142,33 @@ class StaticEnv():
         # get a random move from the get successors method
         if new_position in self.get_successors():
             # make the move 
-            self.make_move(new_pos=new_position)
+            old_pos = self.agent_positon
+            self.agent_positon = new_position
+            self.board[old_pos[0]][old_pos[1]] = 0
+            if self.VERBOSE: 
+                self.print_board()
+
+            self.solution.path += self.agent_positon
+            self.solution.nodes_visited += 1
+            self.solution.steps += 1
+
+            if self.agent_positon in self.goal_positions:
+                self.solution.solved = True
+                self.solution.reward = self.empty_board[self.agent_positon[0]][self.agent_positon[1]]
+                print(f'Game is over, final reward: {self.solution.reward}.')
+        
         else: 
             # agent stays in the same place and burns no fuel 
             self.solution.steps += 1
 
+        
+    def random_move(self):
 
+        # get a random action
+        action = random.choice(self.action_space)
+
+        self.make_move(action=action)
+        
 
 def make_movie():
     """
