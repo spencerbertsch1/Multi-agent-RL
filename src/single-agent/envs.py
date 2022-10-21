@@ -30,6 +30,9 @@ from settings import Configs, PATH_TO_MP4S
 
 class StaticEnv():
 
+    move_mapper: dict = {0: (-1,0), 1: (0,1), 2: (1,0), 3: (0,-1)}
+    text_move_mapper: dict = {0: 'north', 1: 'east', 2: 'south', 3: 'west'}
+
     def __init__(self, board: np.array, start_position: tuple, goal_positions: tuple, solution: Solution, VERBOSE: bool = True):
         self.board = board
         self.empty_board = board.copy()
@@ -40,6 +43,7 @@ class StaticEnv():
         self.board_y = self.board.shape[0]
         self.VERBOSE = VERBOSE
         self.big_board = self.expand_board(board=self.board)
+        self.action_space = [0, 1, 2, 3]  # north, east, south, west 
 
     def get_successors(self) -> tuple:
         """
@@ -125,6 +129,7 @@ class StaticEnv():
 
         self.solution.path += self.agent_positon
         self.solution.nodes_visited += 1
+        self.solution.steps += 1
 
         if self.agent_positon in self.goal_positions:
             self.solution.solved = True
@@ -133,10 +138,21 @@ class StaticEnv():
 
         
     def random_move(self):
-        # get a random move from the get successors method
-        new_pos = random.choice(self.get_successors())
 
-        self.make_move(new_pos=new_pos)
+        # get a random action
+        action = random.choice(self.action_space)
+        print(f'MOVE: {self.text_move_mapper[action]}')
+
+        # if the action is not legal, we stay in the same position and burn no fuel 
+        new_position = tuple(sum(x) for x in zip(self.agent_positon, self.move_mapper[action]))
+
+        # get a random move from the get successors method
+        if new_position in self.get_successors():
+            # make the move 
+            self.make_move(new_pos=new_position)
+        else: 
+            # agent stays in the same place and burns no fuel 
+            self.solution.steps += 1
 
 
 
