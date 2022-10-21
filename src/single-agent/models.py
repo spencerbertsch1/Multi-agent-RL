@@ -45,6 +45,7 @@ class SARSA():
         env = StaticEnv(board=board, start_position=(2,0), solution=solution, goal_positions=((0, 3), (1, 3)))
     
         # TODO use board to create initial Q-map 
+        Q_map = np.zeros((env.board_x, env.board_y, env.board[0].shape[0]))
 
         # TODO implement the SARSA algorithm here
 
