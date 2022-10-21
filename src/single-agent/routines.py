@@ -36,6 +36,7 @@ class Solution:
         self.cost = 0
         self.solved = False
         self.reward = 0
+        self.steps = 0
 
     def __repr__(self):
         s_large = '-'*50
@@ -45,6 +46,7 @@ class Solution:
 
         if len(self.path) > 0: 
             s += f'Nodes visited: {self.nodes_visited} \n'
+            s += f'Total steps: {self.steps} \n'
             s += f'Final reward: {self.reward} \n'
             s += f'Solved: {self.solved} \n{s_large}'
 
