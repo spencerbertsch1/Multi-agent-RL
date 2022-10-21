@@ -37,13 +37,20 @@ class SARSA():
 
     def sarsa(self):
 
+        # TODO load the board from a boards.py file 
+        board = np.array([[0, 0, 0, 100], [0, np.nan, 0, -100], [0, 0, 0, 0]])
+        
         # create a demo board for testing 
         solution = Solution(problem_name=self.problem_name, model_name='SARSA')
-        env = StaticEnv(board=np.array([[0, 0, 0, 100], [0, np.nan, 0, -100], [0, 0, 0, 0]]), start_position=(2,0), \
-                        solution=solution, goal_positions=((0, 3), (1, 3)))
+        env = StaticEnv(board=board, start_position=(2,0), solution=solution, goal_positions=((0, 3), (1, 3)))
     
+        # TODO use board to create initial Q-map 
+
+        # TODO implement the SARSA algorithm here
+
         # some test code 
         for i in range(25):
+            print(f'CURRENT POS: {env.agent_positon}, SUCCESSORS: {env.get_successors()}')
             env.print_board()
             env.random_move()
             if env.solution.solved is True:
