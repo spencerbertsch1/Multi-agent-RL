@@ -15,6 +15,7 @@ This script can be run from the command line using: $ models.py
 # local imports 
 from envs import StaticEnv
 from routines import Solution
+import random
 
 # imports
 import numpy as np
@@ -32,8 +33,28 @@ class QLearning():
 
 class SARSA():
 
-    def __init__(self, problem_name):
+    def __init__(self, problem_name: str, action_space: list, epsilon: float = 0.8, ):
         self.problem_name = problem_name
+        self.epsilon = epsilon
+        self.action_space = action_space
+
+    def get_action(self, Q_map: np.array, S: tuple, action_space: list):
+        """
+        Helper function that returns an action
+        Epsilon Greedy action selector 
+        """
+        # random number between 0 and 1
+        r = random.random()
+        if r < self.epsilon: 
+            # Choose A from S using the policy from the Q_map (epsilon greedy) 
+            prob_vector = Q_map[:, S[0], S[1]]  # <-- we index by [(all actions), agent_y, agent_x]
+            action = np.argmax(prob_vector)
+        else:
+            action = random.choice(self.action_space)
+
+        return action
+
+
 
     def sarsa(self):
 
@@ -45,7 +66,6 @@ class SARSA():
         # define the env parameters: 
         start_position = (2,0)
         goal_positions = ((0, 3), (1, 3))
-        action_space = [0, 1, 2, 3]  # north, east, south, west
         alpha = 0.1
     
         # use board to create initial Q-map 
@@ -73,14 +93,13 @@ class SARSA():
             S = env.agent_positon
             env.initialize_agent()
 
-            # Choose A from S using the policy from the Q_map (epsilon greedy) 
-            A = 0  # TODO add function to sample actions based on Q_map 
+            # get action
+            A = self.get_action()
 
             while env.solution.solved is False: 
                 # take the action
                 env.make_move(action=A)
                 env.print_board()
-                # time.sleep(0.3)
                 
                 # TODO define the reward and the new state
                 R = 0
@@ -123,7 +142,7 @@ class SARSA():
 
 def main():
 
-    clf = SARSA(problem_name='Static Goal Seek')
+    clf = SARSA(problem_name='Static Goal Seek', action_space = [0, 1, 2, 3])
     clf.sarsa()
 
 if __name__ == "__main__":
