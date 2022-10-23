@@ -16,10 +16,11 @@ This script can be run from the command line using: $ models.py
 from envs import StaticEnv
 from routines import Solution
 import random
+import time
 
 # imports
 import numpy as np
-import time
+import seaborn as sns
 
 class QLearning():
 
@@ -33,10 +34,11 @@ class QLearning():
 
 class SARSA():
 
-    def __init__(self, problem_name: str, action_space: list, epsilon: float = 0.8, ):
+    def __init__(self, problem_name: str, action_space: list, epsilon: float = 0.5, plot_q_map: bool = True):
         self.problem_name = problem_name
         self.epsilon = epsilon
         self.action_space = action_space
+        self.plot_q_map = plot_q_map
 
     def get_action(self, Q_map: np.array, S: tuple, action_space: list):
         """
@@ -55,11 +57,13 @@ class SARSA():
         return action
 
 
-
     def sarsa(self):
+
+        print(f'SARSA Initiated! Please be patient, training can take a while.')
 
         # TODO load the board from a boards.py file 
         board = np.array([[0, 0, 0, 100], [0, np.nan, 0, -100], [0, 0, 0, 0]])
+        original_board = board.copy()
         board_x = board.shape[1]
         board_y = board.shape[0]
 
@@ -67,9 +71,10 @@ class SARSA():
         start_position = (2,0)
         goal_positions = ((0, 3), (1, 3))
         alpha = 0.1
+        gamma = 0.9
     
         # use board to create initial Q-map 
-        Q_map = np.random.rand(board_x, board_y, len(action_space))
+        Q_map = np.random.rand(board_x, board_y, len(self.action_space))
 
         # iterate through all the action spaces 
         for action in range(Q_map.shape[-1]): 
@@ -80,44 +85,57 @@ class SARSA():
                 Q_map[action, y, x] = 0
 
         # --- SARSA Algorithm --- 
-        n_episodes: int = 5
+        n_episodes: int = 100
 
+        # TODO use TQDM here for better visibility into progress
         for i in range(n_episodes):
+
+            if i%10==0:
+                print(f'...{i}/{n_episodes} complete...')
 
             # create an environment 
             solution = Solution(problem_name=self.problem_name, model_name='SARSA')
             env = StaticEnv(board=board, start_position=start_position, solution=solution, 
-                            goal_positions=goal_positions, action_space=action_space)
+                            goal_positions=goal_positions, action_space=self.action_space, 
+                            VERBOSE=False)
 
             # Choose start position (this has already been chosen, see env() above)
             S = env.agent_positon
             env.initialize_agent()
 
             # get action
-            A = self.get_action()
+            A = self.get_action(Q_map=Q_map, S=S, action_space=self.action_space)
 
             while env.solution.solved is False: 
                 # take the action
                 env.make_move(action=A)
-                env.print_board()
+                # env.print_board()
                 
-                # TODO define the reward and the new state
-                R = 0
-                S_prime = 0
+                # define the reward and the new state
+                R = original_board[env.agent_positon[0], env.agent_positon[1]]
+                S_prime = env.agent_positon
 
                 # choose the next action (from S_prime) based on Q_map
-                A_prime = 0  # TODO add function to sample actions based on Q_map 
+                A_prime = self.get_action(Q_map=Q_map, S=S_prime, action_space=self.action_space)
 
                 # update the Q_map
-                # Q_map[S, A] = Q_map[S, A] + alpha * (R + (gamma * Q_map[S, A])  - Q_map[S, A])
+                Q_map[A, S[0], S[1]] = Q_map[A, S[0], S[1]] + \
+                                       alpha * (R + (gamma * Q_map[A_prime, S_prime[0], S_prime[1]])  - Q_map[A, S[0], S[1]])
 
                 # update S and A
                 S = S_prime
                 A = A_prime 
 
-        print(f'Complete Q_map: {Q_map}')
+        # print(f'Complete Q_map: {Q_map}')
+
+        mean_q_map: np.array = np.mean(Q_map, axis=0)
+        print(f'Stacked Q_map: \n {mean_q_map}')
+
+        if self.plot_q_map: 
+            sns.heatmap(mean_q_map, annot=True, linewidth=.5, cmap="crest")
 
 
+        # TEST CODE - TODO this code block should be moved into a method that can be called to test random actions 
         """
         # RANDOM MOVE CODE (for testing) 
         # some test code (move randomly)
@@ -138,6 +156,7 @@ class SARSA():
                 break
             time.sleep(0.3)
         """
+        print('something')
 
 
 def main():
