@@ -134,7 +134,7 @@ class StaticEnv():
         assert action in self.action_space, f'Action needs to be in {self.action_space}, but {action} was passed instead.'
 
         # get the new position from the action_mapper dict 
-        print(f'MOVE: {self.text_move_mapper[action]}')
+        # print(f'MOVE: {self.text_move_mapper[action]}')
 
         # if the action is not legal, we stay in the same position and burn no fuel 
         new_position = tuple(sum(x) for x in zip(self.agent_positon, self.move_mapper[action]))
@@ -154,8 +154,8 @@ class StaticEnv():
 
             if self.agent_positon in self.goal_positions:
                 self.solution.solved = True
-                self.solution.reward = self.empty_board[self.agent_positon[0]][self.agent_positon[1]]
-                print(f'Game is over, final reward: {self.solution.reward}.')
+            #     self.solution.reward = self.empty_board[self.agent_positon[0]][self.agent_positon[1]]
+            #     print(f'Game is over, final reward: {self.solution.reward}.')
         
         else: 
             # agent stays in the same place and burns no fuel 
