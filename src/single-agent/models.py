@@ -24,15 +24,6 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-class QLearning():
-
-    def __init__(self, env: np.array):
-        self.env = env
-
-    def solve(self):
-        pass
-        # TODO 
-
 
 class TDLearning():
 
