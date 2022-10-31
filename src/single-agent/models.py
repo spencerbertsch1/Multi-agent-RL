@@ -34,7 +34,7 @@ class QLearning():
         # TODO 
 
 
-class SARSA():
+class TDLearning():
 
     def __init__(self, board_obj, problem_name: str, action_space: list, epsilon: float, plot_q_map: bool,
                  alpha: float, gamma: float, n_episodes: int):
@@ -62,6 +62,10 @@ class SARSA():
             action = random.choice(self.action_space)
 
         return action
+
+    
+    def q_learning(self):
+        pass # :p 
 
 
     def sarsa(self):
@@ -92,7 +96,7 @@ class SARSA():
         for i in range(self.n_episodes):
 
             if i%10==0:
-                print(f'...{i}/{self.n_episodes} complete...')
+                print(f'...SARSA {i}/{self.n_episodes} complete...')
 
             # create an environment 
             solution = Solution(problem_name=self.problem_name, model_name='SARSA')
@@ -133,6 +137,7 @@ class SARSA():
             sns.heatmap(mean_q_map, annot=True, linewidth=.5, cmap="crest")
             plt.show()
 
+
 def random_action_test(problem_name:str='static_goal_seek'):
     """
     Simple function that shows the current environment with an agent taking random actions
@@ -165,7 +170,7 @@ def random_action_test(problem_name:str='static_goal_seek'):
 def main():
 
     # define the SARSA model with all of the necessary environment parameters 
-    clf = SARSA(problem_name='Static Goal Seek', 
+    clf = TDLearning(problem_name='Static Goal Seek', 
                 board_obj = board2, 
                 action_space = [0, 1, 2, 3], 
                 plot_q_map=True,
@@ -173,7 +178,12 @@ def main():
                 gamma = 0.9, 
                 epsilon = 0.5, 
                 n_episodes = 300)
+    
+    # test SARSA
     clf.sarsa()
+
+    # test Q-learning 
+    clf.q_learning()
 
 if __name__ == "__main__":
     main()
