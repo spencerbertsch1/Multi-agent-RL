@@ -126,8 +126,6 @@ class SARSA():
                 S = S_prime
                 A = A_prime 
 
-        # print(f'Complete Q_map: {Q_map}')
-
         mean_q_map: np.array = np.mean(Q_map, axis=0)
         print(f'Stacked Q_map: \n {mean_q_map}')
 
@@ -135,28 +133,33 @@ class SARSA():
             sns.heatmap(mean_q_map, annot=True, linewidth=.5, cmap="crest")
 
 
-        # TEST CODE - TODO this code block should be moved into a method that can be called to test random actions 
-        """
-        # RANDOM MOVE CODE (for testing) 
-        # some test code (move randomly)
-        # create an environment 
-        solution = Solution(problem_name=self.problem_name, model_name='SARSA')
-        env = StaticEnv(board=board, start_position=start_position, solution=solution, 
-                        goal_positions=goal_positions, action_space=action_space)
+def random_action_test(problem_name:str='static_goal_seek'):
+    """
+    Simple function that shows the current environment with an agent taking random actions
+    """
+    board = np.array([[0, 0, 0, 100], [0, np.nan, 0, -100], [0, 0, 0, 0]])
+    action_space = [0, 1, 2, 3]
 
-        # Choose start position (this has already been chosen, see env() above)
-        S = env.agent_positon
-        env.initialize_agent()
-        for i in range(50):
-            print(f'CURRENT POS: {env.agent_positon}, SUCCESSORS: {env.get_successors()}')
-            env.print_board()
-            env.random_move()
-            if env.solution.solved is True:
-                print(env.solution)
-                break
-            time.sleep(0.3)
-        """
-        print('something')
+    start_position = (2,0)
+    goal_positions = ((0, 3), (1, 3))
+
+    # create an environment 
+    solution = Solution(problem_name=problem_name, model_name='SARSA')
+    env = StaticEnv(board=board, start_position=start_position, solution=solution, 
+                    goal_positions=goal_positions, action_space=action_space, 
+                    VERBOSE=False)
+
+    # Choose start position (this has already been chosen, see env() above)
+    S = env.agent_positon
+    env.initialize_agent()
+    for i in range(50):
+        print(f'CURRENT POS: {env.agent_positon}, SUCCESSORS: {env.get_successors()}')
+        env.print_board()
+        env.random_move()
+        if env.solution.solved is True:
+            print(env.solution)
+            break
+        time.sleep(0.3)
 
 
 def main():
@@ -165,4 +168,5 @@ def main():
     clf.sarsa()
 
 if __name__ == "__main__":
-    main()
+    # main()
+    random_action_test()
