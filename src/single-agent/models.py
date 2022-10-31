@@ -15,12 +15,14 @@ This script can be run from the command line using: $ models.py
 # local imports 
 from envs import StaticEnv
 from routines import Solution
+from boards import board1, board2
 import random
 import time
 
 # imports
 import numpy as np
 import seaborn as sns
+import matplotlib.pyplot as plt
 
 class QLearning():
 
@@ -34,11 +36,16 @@ class QLearning():
 
 class SARSA():
 
-    def __init__(self, problem_name: str, action_space: list, epsilon: float = 0.5, plot_q_map: bool = True):
+    def __init__(self, board_obj, problem_name: str, action_space: list, epsilon: float, plot_q_map: bool,
+                 alpha: float, gamma: float, n_episodes: int):
+        self.board_obj = board_obj
         self.problem_name = problem_name
         self.epsilon = epsilon
         self.action_space = action_space
         self.plot_q_map = plot_q_map
+        self.alpha = alpha
+        self.gamma = gamma
+        self.n_episodes = n_episodes
 
     def get_action(self, Q_map: np.array, S: tuple, action_space: list):
         """
@@ -61,21 +68,18 @@ class SARSA():
 
         print(f'SARSA Initiated! Please be patient, training can take a while.')
 
-        # TODO load the board from a boards.py file 
-        board = np.array([[0, 0, 0, 100], [0, np.nan, 0, -100], [0, 0, 0, 0]])
-        original_board = board.copy()
-        board_x = board.shape[1]
-        board_y = board.shape[0]
+        # load the board from a boards.py file 
+        board = self.board_obj.board
+        original_board = self.board_obj.original_board
+        board_x = self.board_obj.board_x
+        board_y = self.board_obj.board_y
+        start_position = self.board_obj.start_position
+        goal_positions = self.board_obj.goal_positions
 
-        # define the env parameters: 
-        start_position = (2,0)
-        goal_positions = ((0, 3), (1, 3))
-        alpha = 0.1
-        gamma = 0.9
-    
         # use board to create initial Q-map 
         Q_map = np.random.rand(board_x, board_y, len(self.action_space))
-
+        
+        # initialize all the goal positions to zero 
         # iterate through all the action spaces 
         for action in range(Q_map.shape[-1]): 
             # and iterate through all the terminal positions
@@ -85,13 +89,10 @@ class SARSA():
                 Q_map[action, y, x] = 0
 
         # --- SARSA Algorithm --- 
-        n_episodes: int = 100
-
-        # TODO use TQDM here for better visibility into progress
-        for i in range(n_episodes):
+        for i in range(self.n_episodes):
 
             if i%10==0:
-                print(f'...{i}/{n_episodes} complete...')
+                print(f'...{i}/{self.n_episodes} complete...')
 
             # create an environment 
             solution = Solution(problem_name=self.problem_name, model_name='SARSA')
@@ -99,7 +100,7 @@ class SARSA():
                             goal_positions=goal_positions, action_space=self.action_space, 
                             VERBOSE=False)
 
-            # Choose start position (this has already been chosen, see env() above)
+            # Initialize the agent in the start position 
             S = env.agent_positon
             env.initialize_agent()
 
@@ -109,7 +110,6 @@ class SARSA():
             while env.solution.solved is False: 
                 # take the action
                 env.make_move(action=A)
-                # env.print_board()
                 
                 # define the reward and the new state
                 R = original_board[env.agent_positon[0], env.agent_positon[1]]
@@ -120,7 +120,7 @@ class SARSA():
 
                 # update the Q_map
                 Q_map[A, S[0], S[1]] = Q_map[A, S[0], S[1]] + \
-                                       alpha * (R + (gamma * Q_map[A_prime, S_prime[0], S_prime[1]])  - Q_map[A, S[0], S[1]])
+                                       self.alpha * (R + (self.gamma * Q_map[A_prime, S_prime[0], S_prime[1]])  - Q_map[A, S[0], S[1]])
 
                 # update S and A
                 S = S_prime
@@ -131,7 +131,7 @@ class SARSA():
 
         if self.plot_q_map: 
             sns.heatmap(mean_q_map, annot=True, linewidth=.5, cmap="crest")
-
+            plt.show()
 
 def random_action_test(problem_name:str='static_goal_seek'):
     """
@@ -164,9 +164,17 @@ def random_action_test(problem_name:str='static_goal_seek'):
 
 def main():
 
-    clf = SARSA(problem_name='Static Goal Seek', action_space = [0, 1, 2, 3])
+    # define the SARSA model with all of the necessary environment parameters 
+    clf = SARSA(problem_name='Static Goal Seek', 
+                board_obj = board2, 
+                action_space = [0, 1, 2, 3], 
+                plot_q_map=True,
+                alpha = 0.1,
+                gamma = 0.9, 
+                epsilon = 0.5, 
+                n_episodes = 300)
     clf.sarsa()
 
 if __name__ == "__main__":
-    # main()
-    random_action_test()
+    main()
+    # random_action_test()
