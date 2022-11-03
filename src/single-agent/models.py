@@ -132,6 +132,7 @@ class TDLearning():
 
         if self.plot_q_map: 
             sns.heatmap(mean_q_map, annot=True, linewidth=.5, cmap="crest")
+            # TODO add title with num training episodes 
             plt.show()
 
 
