@@ -21,7 +21,7 @@ class board1:
     original_board = board.copy()
     board_x = board.shape[1]
     board_y = board.shape[0]
-    start_position = (2, 0, 2, 1)
+    start_position = (2, 0, 2, 2)  # (2, 0, 2, 1)
     goal_positions = ((0, 3), (1, 3))
 
 
