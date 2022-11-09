@@ -6,6 +6,7 @@
     wildfire_update_window = 10  # time units (this value represent the number of base time units that pass between updates)
     aircraft_update_window = 2  # time units (this value represent the number of base time units that pass between updates)
     hotshot_update_window = 5  # time units (this value represent the number of base time units that pass between updates)
+    action_space = [0, 1, 2, 3, 4]  # {0: 'north', 1: 'east', 2: 'south', 3: 'west', 4: 'operate_on_node'}
 
     [MDP.plotting]
     generate_plots = false
@@ -16,3 +17,7 @@
     [MODEL_FREE.plotting]
     generate_plots = false
     generate_mp4 = false
+    board_increase = 150  # used to determine size of the video output
+    # matplotlib.org/stable/tutorials/colors/colormaps.html
+    colormap = 'cool'  # choose from the following: ['cool', 'rainbow', 'turbo', 'viridis', 'plasma']
+    generate_video = true
