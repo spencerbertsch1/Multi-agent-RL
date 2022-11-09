@@ -21,6 +21,7 @@ import math
 from matplotlib import pyplot as plt
 from pathlib import Path
 from datetime import datetime
+import itertools
 
 # local imports 
 from routines import write_animation, Solution
@@ -81,40 +82,66 @@ class MultiAgentStaticEnv():
         (agent1_i, agent1_j, agent2_i, agent2_j, ... , agent_phi_i, agent_phi_j) where there are phi agents. 
         """
 
-        # TODO update this function so that it iterates through all agents! 
+        # iterates over all agents
+        single_agent_successors = []
+        for i in range(0, len(self.agent_positon), 2):
+            # get all neighbors using the 4 neighbor model
+            x = self.agent_positon[i+1]
+            y = self.agent_positon[i]
 
-        # get all neighbors using the 4 neighbor model
-        x = self.agent_positon[1]
-        y = self.agent_positon[0]
+            # get all the neighbors in the 8 neighbor model 
+            # ----- vvv This code snipet was borrowed from a project that was completed last year (it was modified slighly for this project) 
+            s1: list = [(x2, y2) for x2 in range(x-1, x+2)
+                                                for y2 in range(y-1, y+2)
+                                                if (-1 < x < self.board_x and -1 < y < self.board_y and
+                                                    (x != x2 or y != y2) and (0 <= x2 < self.board_x) and (0 <= y2 < self.board_y))]
+            # ----- ^^^
 
-        # get all the neighbors in the 8 neighbor model 
-        # ----- vvv This code snipet was borrowed from a project that was completed last year (it was modified slighly for this project) 
-        s1: list = [(x2, y2) for x2 in range(x-1, x+2)
-                                            for y2 in range(y-1, y+2)
-                                            if (-1 < x < self.board_x and -1 < y < self.board_y and
-                                                (x != x2 or y != y2) and (0 <= x2 < self.board_x) and (0 <= y2 < self.board_y))]
-        # ----- ^^^
+            # remove neighbors that arent in the 4 neighbor model (we could actualy remove this code later to use the 8 neighbor model)
+            s2 = []
+            for neighbor in s1:
+                if (neighbor[0] == x) | (neighbor[1] == y): 
+                    s2.append(neighbor)
 
-        # remove neighbors that arent in the 4 neighbor model (we could actualy remove this code later to use the 8 neighbor model)
-        s2 = []
-        for neighbor in s1:
-            if (neighbor[0] == self.agent_positon[1]) | (neighbor[1] == self.agent_positon[0]):
-                s2.append(neighbor)
+            # remove blocking squares (the agent can't move to the squares represented by np.nan)
+            successors = []
+            for position in s2:
+                px = position[1]
+                py = position[0]
+                if np.isnan(self.board[px][py]):
+                    pass  # don't append the nans! 
+                else:
+                    successors.append(position)
 
-        # remove blocking squares (the agent can't move to the squares represented by np.nan)
-        successors = []
-        for position in s2:
-            px = position[1]
-            py = position[0]
-            if np.isnan(self.board[px][py]):
-                pass  # don't append the nans! 
+            # fix a bug in the indexing by flipping the values in the tuples
+            successors = [(x[1], x[0]) for x in successors]
+
+            single_agent_successors.append(successors) 
+
+        # Create the (num_agents*2)-length tuples of successors 
+        # NOTE: This problem now becomes combinatorial. A large number of agents will no doubt slow this function down
+        successor_combos = list(itertools.product(*single_agent_successors))
+
+        # remove all states in which agents sit on top of one another 
+        legal_combos = []
+        for combo in successor_combos:
+            if len(set(combo)) < len(combo):
+                pass # <-- here at least two robots overlap - this is not allowed
             else:
-                successors.append(position)
+                legal_combos.append(combo)
 
-        # fix a bug in the indexing by flipping the values in the tuples
-        successors = [(x[1], x[0]) for x in successors]
+        # lastly we need to combine the tuples into (num_agents*2)-length tuple states
+        # FIXME this part of the function should be sped up - if we could vectorize this that would be great
+        final_successors = []
+        for action_combo in legal_combos:
+            new_state = []
+            for single_agent_pos in action_combo:
+                for pos in single_agent_pos:
+                    new_state.append(pos)
+            state_tuple: tuple = tuple(new_state)
+            final_successors.append(state_tuple)
 
-        return successors
+        return final_successors
 
     @staticmethod
     def expand_board(board: np.array):
@@ -143,53 +170,53 @@ class MultiAgentStaticEnv():
         coordinate of one agent on the board. 
         """
         for i in range(0, len(self.agent_positon), 2):
-            x = self.agent_positon[i]
-            y = self.agent_positon[i+1]
-            self.board[x, y] = 999
+            y = self.agent_positon[i]
+            x = self.agent_positon[i+1]
+            self.board[y, x] = 999
 
     def print_board(self):
-        self.board[self.agent_positon[0]][self.agent_positon[1]] = 999
         print(self.board, '\n')
 
-    def make_move(self, action: int):
+    def make_move(self, new_position: tuple):
 
-        assert action in self.action_space, f'Action needs to be in {self.action_space}, but {action} was passed instead.'
+        # make the move 
+        old_pos = self.agent_positon
+        self.agent_positon = new_position
 
-        # get the new position from the action_mapper dict 
-        # print(f'MOVE: {self.text_move_mapper[action]}')
+        # set the old positions to zero 
+        for i in range(0, len(old_pos), 2):
+            y = old_pos[i]
+            x = old_pos[i+1]
+            self.board[y, x] = 0
 
-        # if the action is not legal, we stay in the same position and burn no fuel 
-        new_position = tuple(sum(x) for x in zip(self.agent_positon, self.move_mapper[action]))
+        # set the new positions to 99x... 
+        for i in range(0, len(new_position), 2):
+            y = new_position[i]
+            x = new_position[i+1]
+            # we subtract 1 here so that we can tell the agents apart! 
+            self.board[y, x] = 999-(i/2)
 
-        # get a random move from the get successors method
-        if new_position in self.get_successors():
-            # make the move 
-            old_pos = self.agent_positon
-            self.agent_positon = new_position
-            self.board[old_pos[0]][old_pos[1]] = 0
-            if self.VERBOSE: 
-                self.print_board()
+        if self.VERBOSE: 
+            self.print_board()
 
-            self.solution.path += self.agent_positon
-            self.solution.nodes_visited += 1
-            self.solution.steps += 1
+        self.solution.path += self.agent_positon
+        self.solution.nodes_visited += 1
+        self.solution.steps += 1
 
-            if self.agent_positon in self.goal_positions:
-                self.solution.solved = True
-            #     self.solution.reward = self.empty_board[self.agent_positon[0]][self.agent_positon[1]]
-            #     print(f'Game is over, final reward: {self.solution.reward}.')
+        # TODO remove agents individually if they get to the goal ! for i in range(0, len(old_pos), 2):
+        if self.agent_positon in self.goal_positions:
+            self.solution.solved = True
+        #     self.solution.reward = self.empty_board[self.agent_positon[0]][self.agent_positon[1]]
+        #     print(f'Game is over, final reward: {self.solution.reward}.')
+
+
         
-        else: 
-            # agent stays in the same place and burns no fuel 
-            self.solution.steps += 1
-
-        
-    def random_move(self):
+    def random_move(self, successors: list):
 
         # get a random action
-        action = random.choice(self.action_space)
+        new_position = random.choice(successors)
 
-        self.make_move(action=action)
+        self.make_move(new_position=new_position)
         
 
 def make_movie():
