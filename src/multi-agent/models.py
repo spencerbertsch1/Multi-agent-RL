@@ -143,7 +143,7 @@ def random_action_test(problem_name:str='multi_agent_static_goal_seek'):
     board = np.array([[0, 0, 0, 100], [0, np.nan, 0, -100], [0, 0, 0, 0]])
     action_space = [0, 1, 2, 3]
 
-    start_position = (2,0,2,1)
+    start_position = (2,0,2,2)
     goal_positions = ((0, 3), (1, 3))
 
     # create an environment 
@@ -155,14 +155,14 @@ def random_action_test(problem_name:str='multi_agent_static_goal_seek'):
     # Choose start position (this has already been chosen, see env() above)
     S = env.agent_positon
     env.initialize_agents()
-    for i in range(50):
+    for i in range(20):
         print(f'CURRENT POS: {env.agent_positon}, SUCCESSORS: {env.get_successors()}')
         env.print_board()
-        env.random_move()
+        env.random_move(successors=env.get_successors())
         if env.solution.solved is True:
             print(env.solution)
             break
-        time.sleep(0.3)
+        time.sleep(1)
 
 
 def main():
