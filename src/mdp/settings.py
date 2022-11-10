@@ -10,7 +10,8 @@ import logging
 # define helpful paths 
 PATH_TO_THIS_FILE: Path = Path(__file__).resolve()
 ABSPATH_TO_TOML: Path = PATH_TO_THIS_FILE.parent / "config.toml"
-PATH_TO_MP4S: Path = PATH_TO_THIS_FILE.parent / "single-agent" / "mp4s"
+PATH_TO_MP4S: Path = PATH_TO_THIS_FILE.parent / "mp4s"
+PATH_TO_POLICIES: Path = PATH_TO_THIS_FILE.parent / "policies"
 
 # use toml.load to read `config.toml` file in as a dictionary
 CONFIG_DICT: Dict[Any, Any] = toml.load(str(ABSPATH_TO_TOML))
@@ -21,6 +22,8 @@ class MDP:
     aircraft_update_window: int = CONFIG_DICT['MDP']['general']['aircraft_update_window']
     hotshot_update_window: int = CONFIG_DICT['MDP']['general']['hotshot_update_window']
     stochastic_fire_spread: bool = CONFIG_DICT['MDP']['general']['stochastic_fire_spread']
+    save_policy: bool = CONFIG_DICT['MDP']['general']['save_policy']
+    verbose: bool = CONFIG_DICT['MDP']['general']['verbose']
     generate_plots: bool = CONFIG_DICT['MDP']['plotting']['generate_plots']
     generate_mp4: bool = CONFIG_DICT['MDP']['plotting']['generate_mp4']
     board_increase: int = CONFIG_DICT['MDP']['plotting']['board_increase']
