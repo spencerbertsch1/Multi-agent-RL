@@ -21,7 +21,7 @@ import matplotlib.animation as animation
 import numpy as np
 
 # local imports 
-from settings import Configs
+from mdp.settings import Configs
 
 
 class Solution:

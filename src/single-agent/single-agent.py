@@ -14,7 +14,7 @@ This script can be run from the command line using: $ single-agent.py
 """
 
 # local imports 
-from settings import StaticEnv
+from mdp.settings import StaticEnv
 from models import QLearning, SARSA
 
 def main():
