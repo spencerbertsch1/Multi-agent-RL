@@ -36,7 +36,7 @@ class MDPStaticEnv():
     def __init__(self, board: np.array, agent_start_position: tuple, fire_start_position: tuple, 
                  solution: Solution, action_space: list, VERBOSE: bool = True, timestamp: int = 0):
         self.board = board
-        self.phos_chek_board = board.copy()
+        self.agent_board = board.copy()
         self.empty_board = board.copy()
         self.solution = solution
         self.agent_position = agent_start_position
@@ -123,7 +123,7 @@ class MDPStaticEnv():
         simple function to initialize the agent's position and the fire on the board 
         """
         # initialize the single agent - later this can be done in a loop for more agents
-        self.board[self.agent_position[0], self.agent_position[1]] = 999
+        self.agent_board[self.agent_position[0], self.agent_position[1]] = 999
         # initialize the fire - later this can be done in a loop for more fire start locations
         self.board[self.fire_position[0], self.fire_position[1]] = 1
 
@@ -151,8 +151,7 @@ class MDPStaticEnv():
                 if self.VERBOSE:
                     print('The fire has gone out! This episode is now complete.')
 
-            elif (self.phos_chek_board[new_burning_node_location[0], new_burning_node_location[1]] == 9) | \
-               (new_burning_node_location[0] > self.board_y) | (new_burning_node_location[1] > self.board_x): 
+            elif (self.board[new_burning_node_location[0], new_burning_node_location[1]] == 9): 
                 self.solution.solved = True
                 if self.VERBOSE:
                     print('The fire has gone out! This episode is now complete.')
@@ -163,8 +162,9 @@ class MDPStaticEnv():
         """
         Simple utility function to pretty print the board 
         """
+        board_to_print: np.array = self.board.copy() + self.agent_board.copy()
         s = '-'*30
-        print(f'{s}\n {self.board}\n {s}')
+        print(f'{s}\n {board_to_print}\n {s}')
 
     def take_action(self, action: int):
         """
@@ -175,15 +175,19 @@ class MDPStaticEnv():
         assert action in self.action_space, f'Action needs to be in {self.action_space}, but {action} was passed instead.'
 
         # get the new position from the action_mapper dict 
-        print(f'ACTION: {self.text_move_mapper[action]}')
+        if self.VERBOSE:
+            print(f'ACTION: {self.text_move_mapper[action]}')
 
         if action == 4: 
-            # here we modify the board so that 
-            pass
+            # we can't drop phos chek on already burned or burning nodes
+            if (self.board[self.agent_position[0], self.agent_position[1]] == 2) | \
+               (self.board[self.agent_position[0], self.agent_position[1]] == 1):
+                pass
+            else:
+                # here we modify the phos_chek board so that the agent's current position is a 9 
+                self.board[self.agent_position[0], self.agent_position[1]] = 9
+
         else:
-
-            # TODO move agent around the PHOS CHEK BOARD 
-
             # if the action is not legal, we stay in the same position and burn no fuel 
             new_position = tuple(sum(x) for x in zip(self.agent_position, self.move_mapper[action]))
 
@@ -192,7 +196,8 @@ class MDPStaticEnv():
                 # make the move 
                 old_pos = self.agent_position
                 self.agent_position = new_position
-                self.board[old_pos[0]][old_pos[1]] = 0
+                self.agent_board[old_pos[0]][old_pos[1]] = 0
+                self.agent_board[new_position[0]][new_position[1]] = 999
                 if self.VERBOSE: 
                     self.print_board()
 
@@ -200,11 +205,6 @@ class MDPStaticEnv():
                 self.solution.nodes_visited += 1
                 self.solution.steps += 1
 
-                if self.agent_position in self.goal_positions:
-                    self.solution.solved = True
-                #     self.solution.reward = self.empty_board[self.agent_position[0]][self.agent_position[1]]
-                #     print(f'Game is over, final reward: {self.solution.reward}.')
-            
             else: 
                 # agent stays in the same place and burns no fuel 
                 self.solution.steps += 1
@@ -217,7 +217,7 @@ class MDPStaticEnv():
         self.take_action(action=action)
         
 
-    def increment_time(self):
+    def increment_time(self, action: int):
         """
         This method increments the environment forward by one base time unit. 
 
@@ -228,14 +228,37 @@ class MDPStaticEnv():
         # increment base time unit by 1. 
         self.timestamp += 1
         
-        # if self.timestamp % MDP.aircraft_update_window == 0: 
-        #     # here we initiate an action for the agent
-        #     self.random_move()
+        if self.timestamp % MDP.aircraft_update_window == 0: 
+            # here we initiate an action for the agent
+            self.take_action(action=action)
 
         if self.timestamp % MDP.wildfire_update_window == 0: 
             # here we initiate the stoachastic or deterministic action for the fire
             self.fire_spread()
 
+    def calculate_final_reward(self):
+        """
+        Small method that returns the reward given the current state
+        """
+        # this reward funciton is based on the simplest MDP model, leter iterations can be more sophistocated
+        return np.count_nonzero(self.board==0) + np.count_nonzero(self.board==9)
+
+    def calculate_reward(self, action: int):
+        """
+        Small method that returns the reward given the current state, action pair
+        """
+        # reward for dropping phos chek in fire's path
+        if ((action == 4) & (self.agent_position[0] == self.agent_position[1])):
+            # ^^ this second check is only useful because of the linear fire spread - remove for radial fire spread
+            # here we calculate the reward based on the linear distance from the fire start location
+            R = 6
+            # here we center the linear surface on the position (1,1), so the maximal reward is achieved by dropping 
+            # phos chek directly in front of the fire. Rewards for dropping phos check spread equally from this point. 
+            abs_diff = abs(sum(self.agent_position) - 2)
+            reward = R - abs_diff
+            return reward
+        else:
+            return 0
 
 def make_movie():
     """
@@ -281,7 +304,7 @@ def random_walk():
     solution = Solution(problem_name=problem_name, model_name='SARSA')
     env = MDPStaticEnv(board=board, agent_start_position=agent_start_position, solution=solution, 
                     fire_start_position=fire_start_position, action_space=action_space, 
-                    VERBOSE=True)
+                    VERBOSE=False)
 
     # initialize the agent(s) and the fire start locations
     env.initialize_state()
@@ -293,9 +316,10 @@ def random_walk():
         env.increment_time()
         # env.random_move()
         if env.solution.solved is True:
+            env.solution.reward = env.calculate_final_reward()
             print(env.solution)
             break
-        time.sleep(0.3)
+        time.sleep(0.2)
 
 def main():
     random_walk()
