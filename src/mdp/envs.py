@@ -151,7 +151,7 @@ class MDPStaticEnv():
                 if self.VERBOSE:
                     print('The fire has gone out! This episode is now complete.')
 
-            elif (self.board[new_burning_node_location[0], new_burning_node_location[1]] == 9) | \
+            elif (self.phos_chek_board[new_burning_node_location[0], new_burning_node_location[1]] == 9) | \
                (new_burning_node_location[0] > self.board_y) | (new_burning_node_location[1] > self.board_x): 
                 self.solution.solved = True
                 if self.VERBOSE:
@@ -177,30 +177,37 @@ class MDPStaticEnv():
         # get the new position from the action_mapper dict 
         print(f'ACTION: {self.text_move_mapper[action]}')
 
-        # if the action is not legal, we stay in the same position and burn no fuel 
-        new_position = tuple(sum(x) for x in zip(self.agent_position, self.move_mapper[action]))
+        if action == 4: 
+            # here we modify the board so that 
+            pass
+        else:
 
-        # get a random move from the get successors method
-        if new_position in self.get_neighbors(node_location=self.agent_position):
-            # make the move 
-            old_pos = self.agent_position
-            self.agent_position = new_position
-            self.board[old_pos[0]][old_pos[1]] = 0
-            if self.VERBOSE: 
-                self.print_board()
+            # TODO move agent around the PHOS CHEK BOARD 
 
-            self.solution.path += self.agent_position
-            self.solution.nodes_visited += 1
-            self.solution.steps += 1
+            # if the action is not legal, we stay in the same position and burn no fuel 
+            new_position = tuple(sum(x) for x in zip(self.agent_position, self.move_mapper[action]))
 
-            if self.agent_position in self.goal_positions:
-                self.solution.solved = True
-            #     self.solution.reward = self.empty_board[self.agent_position[0]][self.agent_position[1]]
-            #     print(f'Game is over, final reward: {self.solution.reward}.')
-        
-        else: 
-            # agent stays in the same place and burns no fuel 
-            self.solution.steps += 1
+            # get a random move from the get successors method
+            if new_position in self.get_neighbors(node_location=self.agent_position):
+                # make the move 
+                old_pos = self.agent_position
+                self.agent_position = new_position
+                self.board[old_pos[0]][old_pos[1]] = 0
+                if self.VERBOSE: 
+                    self.print_board()
+
+                self.solution.path += self.agent_position
+                self.solution.nodes_visited += 1
+                self.solution.steps += 1
+
+                if self.agent_position in self.goal_positions:
+                    self.solution.solved = True
+                #     self.solution.reward = self.empty_board[self.agent_position[0]][self.agent_position[1]]
+                #     print(f'Game is over, final reward: {self.solution.reward}.')
+            
+            else: 
+                # agent stays in the same place and burns no fuel 
+                self.solution.steps += 1
 
     def random_move(self):
 
