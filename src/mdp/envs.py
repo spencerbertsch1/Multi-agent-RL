@@ -146,9 +146,14 @@ class MDPStaticEnv():
             self.board[old_node_location[0], old_node_location[1]] = 2
 
             # now we need to test whether or not the fire has burned out 
-            if (self.board[new_burning_node_location[0], new_burning_node_location[1]] == 9) | \
+            if (new_burning_node_location[0] >= self.board_y) | (new_burning_node_location[1] >= self.board_x): 
+                self.solution.solved = True
+                if self.VERBOSE:
+                    print('The fire has gone out! This episode is now complete.')
+
+            elif (self.board[new_burning_node_location[0], new_burning_node_location[1]] == 9) | \
                (new_burning_node_location[0] > self.board_y) | (new_burning_node_location[1] > self.board_x): 
-                self.solved = True
+                self.solution.solved = True
                 if self.VERBOSE:
                     print('The fire has gone out! This episode is now complete.')
             else:
