@@ -45,9 +45,9 @@ class Solution:
         s += f'{s_small} Model: {self.model_name} {s_small} \n'
 
         if len(self.path) > 0: 
-            s += f'Nodes visited: {self.nodes_visited} \n'
-            s += f'Total steps: {self.steps} \n'
-            s += f'Final reward: {self.reward} \n'
+            s += f'Nodes visited during episode: {self.nodes_visited} \n'
+            s += f'Total time steps taken in episode: {self.steps} \n'
+            s += f'Final reward for episode: {self.reward} \n'
             s += f'Solved: {self.solved} \n{s_large}'
 
         else:
