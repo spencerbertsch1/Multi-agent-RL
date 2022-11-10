@@ -25,7 +25,7 @@ from datetime import datetime
 # local imports 
 from routines import write_animation, Solution
 
-from settings import Configs, PATH_TO_MP4S
+from mdp.settings import Configs, PATH_TO_MP4S
 
 
 class StaticEnv():
@@ -161,7 +161,6 @@ class StaticEnv():
             # agent stays in the same place and burns no fuel 
             self.solution.steps += 1
 
-        
     def random_move(self):
 
         # get a random action
