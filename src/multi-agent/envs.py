@@ -26,7 +26,7 @@ import itertools
 # local imports 
 from routines import write_animation, Solution
 
-from settings import Configs, PATH_TO_MP4S
+from mdp.settings import Configs, PATH_TO_MP4S
 
 
 class MultiAgentStaticEnv():
