@@ -2,8 +2,8 @@
 [MDP]
 
     [MDP.general]
-    episodes = 500  # "Delta" - the number of training iterations (should be large enough for convergence)
-    wildfire_update_window = 25  # time units (this value represent the number of base time units that pass between updates)
+    episodes = 300  # "Delta" - the number of training iterations (should be large enough for convergence)
+    wildfire_update_window = 3  # time units (this value represent the number of base time units that pass between updates)
     aircraft_update_window = 1  # time units (this value represent the number of base time units that pass between updates)
     hotshot_update_window = 5  # time units (this value represent the number of base time units that pass between updates)
     action_space = [0, 1, 2, 3, 4]  # {0: 'north', 1: 'east', 2: 'south', 3: 'west', 4: 'operate_on_node'}
