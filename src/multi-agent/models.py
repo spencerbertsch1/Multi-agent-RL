@@ -37,6 +37,7 @@ class TDLearning():
         self.alpha = alpha
         self.gamma = gamma
         self.n_episodes = n_episodes
+        self.beta = 0.01
 
     def get_action(self, Q_map: np.array, S: tuple, action_space: list):
         """
@@ -60,8 +61,97 @@ class TDLearning():
         Implementation of Q-learning algorithm using custom environment 
         """
         print(f'Q-Learning Initiated! Please be patient, training can take a while.')
+        
+        
+        
+        
+        # load the board from a boards.py file 
+        board = self.board_obj.board
+        original_board = self.board_obj.original_board
+        board_x = self.board_obj.board_x
+        board_y = self.board_obj.board_y
+        start_position = self.board_obj.start_position
+        goal_positions = self.board_obj.goal_positions
 
-        pass
+        # use board to create initial Q-map 
+        Q_map = np.random.rand(board_x, board_y, len(self.action_space))
+        
+        Q_map_1 = np.random.rand(board_x, board_y, len(self.action_space))
+        Q_map_2 = np.random.rand(board_x, board_y, len(self.action_space))
+        list_Q_map = [Q_map_1, Q_map_2]
+        
+        # initialize all the goal positions to zero 
+        # iterate through all the action spaces 
+        for i in range(list_Q_map):
+            for action in range(Q_map.shape[-1]): 
+            # and iterate through all the terminal positions
+                for goal_pos in goal_positions:
+                    x = goal_pos[1]
+                    y = goal_pos[0]
+                    list_Q_map[i][action, y, x] = 0
+                
+        # --- Q-Learning Algorithm --- 
+        for i in range(self.n_episodes):
+
+            if i%10==0:
+                print(f'...QLearning {i}/{self.n_episodes} complete...')
+
+            # create an environment 
+            solution = Solution(problem_name=self.problem_name, model_name='Q-Learn')
+            env = MultiAgentStaticEnv(board=board, start_position=start_position, solution=solution, 
+                            goal_positions=goal_positions, action_space=self.action_space, 
+                            VERBOSE=False)
+
+            # Initialize the agent in the start position 
+            S = env.agent_positon
+            env.initialize_agent()
+
+            # get action
+            A = self.get_action(Q_map=Q_map, S=S, action_space=self.action_space)
+
+            while env.solution.solved is False: 
+                # take the action
+                env.make_move(action=A)
+                
+                # define the reward and the new state
+                R = original_board[env.agent_positon[0], env.agent_positon[1]]
+                S_prime = env.agent_positon
+
+                # choose the next action (from S_prime) based on Q_map
+                A_prime = self.get_action(Q_map=list_Q_map[0], S=S_prime, action_space=self.action_space)
+                
+                A_max = self.get_max_action(Q_map=list_Q_map[0], S=S_prime, action_space=self.action_space)
+
+                # update the Q_map
+                list_Q_map[0][A, S[0], S[1]] = list_Q_map[0][A, S[0], S[1]] + \
+                                       self.alpha * (R + (self.gamma * list_Q_map[0][A_max, S_prime[0], S_prime[1]])  -list_Q_map[0][A, S[0], S[1]])  - \
+                                           self.beta*()*(list_Q_map[0][A, S[0], S[1]] - list_Q_map[1][A, S[0], S[1]])
+                                           
+                list_Q_map[1][A, S[0], S[1]] = list_Q_map[1][A, S[0], S[1]] + \
+                                       self.alpha * (R + (self.gamma * list_Q_map[1][A_max, S_prime[0], S_prime[1]])  -list_Q_map[1][A, S[0], S[1]])  - \
+                                           self.beta*()*(list_Q_map[1][A, S[0], S[1]] - list_Q_map[0][A, S[0], S[1]])                                           
+
+                # update S and A
+                S = S_prime
+                A = A_prime 
+
+        mean_q_map: np.array = np.mean(Q_map, axis=0)
+        print(f'Stacked Q_map: \n {mean_q_map}')
+
+        if self.plot_q_map: 
+            sns.heatmap(mean_q_map, annot=True, linewidth=.5, cmap="crest")
+            plt.show()
+        
+
+        """
+        Implementation of Q-learning algorithm using custom environment 
+        """
+        
+        """
+        print(f'Q-Learning Initiated! Please be patient, training can take a while.')
+        """
+        
+        return list_Q_map                           
 
 
     def sarsa(self):
