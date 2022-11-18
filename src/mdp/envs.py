@@ -236,7 +236,7 @@ class MDPStaticEnv():
             # here we initiate the stoachastic or deterministic action for the fire
             self.fire_spread()
 
-    def calculate_final_reward(self):
+    def calculate_final_reward(self, action: int):
         """
         Small method that returns the reward given the current state
         """
