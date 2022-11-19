@@ -2,14 +2,14 @@
 [MDP]
 
     [MDP.general]
-    episodes = 300  # "Delta" - the number of training iterations (should be large enough for convergence)
+    episodes = 10  # "Delta" - the number of training iterations (should be large enough for convergence)
     wildfire_update_window = 3  # time units (this value represent the number of base time units that pass between updates)
     aircraft_update_window = 1  # time units (this value represent the number of base time units that pass between updates)
     hotshot_update_window = 5  # time units (this value represent the number of base time units that pass between updates)
     action_space = [0, 1, 2, 3, 4]  # {0: 'north', 1: 'east', 2: 'south', 3: 'west', 4: 'operate_on_node'}
     stochastic_fire_spread = false  # <-- true if we want the fire to spread stochastically, false to use a deterministic model
     save_policy = true
-    verbose = false
+    verbose = true
 
     [MDP.plotting]
     generate_plots = true
