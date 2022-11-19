@@ -71,31 +71,32 @@ class MDPStaticEnv():
         y = node_location[0]
 
         # get all the neighbors in the 8 neighbor model 
-        # ----- vvv This code snipet was borrowed from a project that was completed last year (it was modified slighly for this project) 
-        s1: list = [(x2, y2) for x2 in range(x-1, x+2)
-                                            for y2 in range(y-1, y+2)
-                                            if (-1 < x < self.board_x and -1 < y < self.board_y and
-                                                (x != x2 or y != y2) and (0 <= x2 < self.board_x) and (0 <= y2 < self.board_y))]
-        # ----- ^^^
 
-        # remove neighbors that arent in the 4 neighbor model (we could actualy remove this code later to use the 8 neighbor model)
         s2 = []
-        for neighbor in s1:
-            if (neighbor[0] == self.agent_position[1]) | (neighbor[1] == self.agent_position[0]):
-                s2.append(neighbor)
+        s1: list = [(y-1, x), (y, x-1), (y+1, x), (y, x+1)]
+        for location in s1: 
+            x = location[1]
+            y = location[0]
+
+            if ((x < 0) | (x >= self.board_x) | (y < 0) | (y >= self.board_y)):
+                # print(f'Illegal Node: {location}')
+                pass
+            else:
+                # print(f'Legal Node: {location}')
+                s2.append(location)
 
         # remove blocking squares (the agent can't move to the squares represented by np.nan)
         successors = []
         for position in s2:
             px = position[1]
             py = position[0]
-            if np.isnan(self.board[px][py]):
+            if np.isnan(self.board[py][px]):
                 pass  # don't append the nans! 
             else:
                 successors.append(position)
 
         # fix a bug in the indexing by flipping the values in the tuples
-        successors = [(x[1], x[0]) for x in successors]
+        # successors = [(x[1], x[0]) for x in successors]
 
         return successors
 
