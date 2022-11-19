@@ -63,8 +63,6 @@ class TDLearning():
         print(f'Q-Learning Initiated! Please be patient, training can take a while.')
         
         
-        
-        
         # load the board from a boards.py file 
         board = self.board_obj.board
         original_board = self.board_obj.original_board
@@ -125,11 +123,11 @@ class TDLearning():
                 # update the Q_map
                 list_Q_map[0][A, S[0], S[1]] = list_Q_map[0][A, S[0], S[1]] + \
                                        self.alpha * (R + (self.gamma * list_Q_map[0][A_max, S_prime[0], S_prime[1]])  -list_Q_map[0][A, S[0], S[1]])  - \
-                                           self.beta*()*(list_Q_map[0][A, S[0], S[1]] - list_Q_map[1][A, S[0], S[1]])
+                                           self.beta*(list_Q_map[0][A, S[0], S[1]] - list_Q_map[1][A, S[0], S[1]])
                                            
                 list_Q_map[1][A, S[0], S[1]] = list_Q_map[1][A, S[0], S[1]] + \
                                        self.alpha * (R + (self.gamma * list_Q_map[1][A_max, S_prime[0], S_prime[1]])  -list_Q_map[1][A, S[0], S[1]])  - \
-                                           self.beta*()*(list_Q_map[1][A, S[0], S[1]] - list_Q_map[0][A, S[0], S[1]])                                           
+                                           self.beta*(list_Q_map[1][A, S[0], S[1]] - list_Q_map[0][A, S[0], S[1]])                                           
 
                 # update S and A
                 S = S_prime
@@ -266,12 +264,13 @@ def main():
                 gamma = 0.9, 
                 epsilon = 0.5, 
                 n_episodes = 50)
+
     
     # test SARSA
-    clf.sarsa()
+    # clf.sarsa()
 
     # test Q-learning 
-    # clf.q_learning()
+    clf.q_learning()
 
 if __name__ == "__main__":
     # main()
