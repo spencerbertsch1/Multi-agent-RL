@@ -129,34 +129,45 @@ class MDPStaticEnv():
 
     def fire_spread(self):
         """
-        Utility function that is used to spread the fire via either a stochastic or deterministic model 
+        Function that is used to spread the fire via either a stochastic or deterministic model 
+
+        Here we model the fire as a radial spread form the ignition point
         """
         if MDP.stochastic_fire_spread: 
             pass  # implement the stochastic fire simulation later
         else:
 
             # get burning node location
-            old_node_location = np.where(self.board == 1)
-            old_node_location_tuple = (old_node_location[0][0], old_node_location[1][0])
+            old_node_locations_arr: tuple = np.where(self.board == 1)
+            # old_node_location_tuple = [[x[0][0], x[1][0]] for x in old_node_location]
+
+            old_node_locations = []
+            for i in range(0, len(old_node_locations_arr), 2):
+                burning_node: tuple = (old_node_locations_arr[i][0], old_node_locations_arr[i+1][0])
+                old_node_locations.append(burning_node)
 
             # new burning node location
-            new_burning_node_location = tuple([i+1 for i in old_node_location_tuple])
+            new_burning_nodes = set()
+            for node_location in old_node_locations:
+                neighbors: tuple = self.get_neighbors(node_location=node_location)
+                for neighbor in neighbors:
+                    if self.board[neighbor[0], neighbor[1]] == 0:
+                        new_burning_nodes.add(neighbor)
+            
+            # new_burning_node_location = tuple([i+1 for i in old_node_location_tuple])
 
             # update the board to reflect the burn 
-            self.board[old_node_location[0], old_node_location[1]] = 2
+            for old_node_location in old_node_locations:
+                self.board[old_node_location[0], old_node_location[1]] = 2
+
+            for new_burning_node in new_burning_nodes:
+                self.board[new_burning_node[0], new_burning_node[1]] = 1
 
             # now we need to test whether or not the fire has burned out 
-            if (new_burning_node_location[0] >= self.board_y) | (new_burning_node_location[1] >= self.board_x): 
+            if len(new_burning_nodes) == 0: 
                 self.solution.solved = True
                 if self.VERBOSE:
                     print('The fire has gone out! This episode is now complete.')
-
-            elif (self.board[new_burning_node_location[0], new_burning_node_location[1]] == 9): 
-                self.solution.solved = True
-                if self.VERBOSE:
-                    print('The fire has gone out! This episode is now complete.')
-            else:
-                self.board[new_burning_node_location[0], new_burning_node_location[1]] = 1
 
     def print_board(self):
         """
@@ -248,17 +259,20 @@ class MDPStaticEnv():
         Small method that returns the reward given the current state, action pair
         """
         # reward for dropping phos chek in fire's path
-        if ((action == 4) & (self.agent_position[0] == self.agent_position[1])):
-            # ^^ this second check is only useful because of the linear fire spread - remove for radial fire spread
-            # here we calculate the reward based on the linear distance from the fire start location
-            R = 6
-            # here we center the linear surface on the position (1,1), so the maximal reward is achieved by dropping 
-            # phos chek directly in front of the fire. Rewards for dropping phos check spread equally from this point. 
-            abs_diff = abs(sum(self.agent_position) - 2)
-            reward = R - abs_diff
-            return reward
-        else:
-            return 0
+        # if ((action == 4) & (self.agent_position[0] == self.agent_position[1])):
+        #     # ^^ this second check is only useful because of the linear fire spread - remove for radial fire spread
+        #     # here we calculate the reward based on the linear distance from the fire start location
+        #     R = 6
+        #     # here we center the linear surface on the position (1,1), so the maximal reward is achieved by dropping 
+        #     # phos chek directly in front of the fire. Rewards for dropping phos check spread equally from this point. 
+        #     abs_diff = abs(sum(self.agent_position) - 2)
+        #     reward = R - abs_diff
+        #     return reward
+        # else:
+        #     return 0
+
+        R = 10
+        return R
 
 def make_movie():
     """
