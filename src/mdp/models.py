@@ -209,7 +209,7 @@ class TDLearning():
                 env.increment_time(action=A)
                 
                 # define the reward and the new state
-                R = env.calculate_final_reward(action=A)  # <-- we need to update this so it will work for SARSA
+                R = env.calculate_reward(action=A)  # <-- we need to update this so it will work for SARSA
                 S_prime = env.agent_position
 
                 if env.VERBOSE:
@@ -291,7 +291,6 @@ class TDLearning():
         mov_fname: str = f'static-env-{timestamp}.mp4'
         MOV_PATH = PATH_TO_MP4S / mov_fname
         write_animation(itr=env_itr, out_file=MOV_PATH)
-    
 
 def main():
 
@@ -302,7 +301,7 @@ def main():
                 plot_q_map=MDP.generate_plots,
                 alpha = 0.1,
                 gamma = 0.9, 
-                epsilon = 0.2, 
+                epsilon = 0.5, 
                 n_episodes = MDP.episodes)
     
     # test SARSA
