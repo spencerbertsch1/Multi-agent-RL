@@ -47,6 +47,27 @@ class MDPStaticEnv():
         self.VERBOSE = VERBOSE
         self.big_board = self.expand_board(board=self.board)
         self.timestamp = timestamp  # measured in base time units defined in the MDP formulation 
+
+
+    def centeroidnp(self):
+        """
+        https://stackoverflow.com/questions/23020659/fastest-way-to-calculate-the-centroid-of-a-set-of-coordinate-tuples-in-python-wi
+        """
+        # get burning node location
+        old_node_locations_arr: tuple = np.where(self.board == 1)
+        # old_node_location_tuple = [[x[0][0], x[1][0]] for x in old_node_location]
+
+        old_node_locations = []
+        for i in range(0, len(old_node_locations_arr), 2):
+            burning_node: tuple = (old_node_locations_arr[i][0], old_node_locations_arr[i+1][0])
+            old_node_locations.append(burning_node)
+
+        arr = np.array(old_node_locations)
+
+        length = arr.shape[0]
+        sum_x = np.sum(arr[:, 0])
+        sum_y = np.sum(arr[:, 1])
+        return sum_x/length, sum_y/length
         
 
     def get_neighbors(self, node_location: tuple) -> tuple:
@@ -272,8 +293,13 @@ class MDPStaticEnv():
         # else:
         #     return 0
 
-        R = 10
-        return R
+        # fire_centroid = self.centeroidnp()
+        fire_centroid = [2, 6]
+        if ((fire_centroid[0] == self.agent_position[0]) & (fire_centroid[1] == self.agent_position[1])):
+            return 200
+        else:
+            reward = 1/(math.dist(fire_centroid, self.agent_position))
+            return reward*100
 
 def make_movie():
     """
