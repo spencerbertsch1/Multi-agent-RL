@@ -28,7 +28,21 @@ import matplotlib.pyplot as plt
 
 class PolicyIteration:
 
-    def __init__(self):
+    def __init__(self, board_obj, problem_name: str, action_space: list, epsilon: float, plot_q_map: bool,
+                 alpha: float, gamma: float, n_episodes: int):
+        self.board_obj = board_obj
+        self.problem_name = problem_name
+        self.epsilon = epsilon
+        self.action_space = action_space
+        self.plot_q_map = plot_q_map
+        self.alpha = alpha
+        self.gamma = gamma
+        self.n_episodes = n_episodes
+
+    def TODO():
+        """
+        Write all of the methods needed for policy iteration here
+        """
         pass
 
 
@@ -173,8 +187,8 @@ class TDLearning():
 
             problem_name = 'MDP BUG CONTAINMENT'
 
-            agent_start_position = (3,3)
-            fire_start_position = (0,0)
+            agent_start_position = self.board_obj.agent_start_position
+            fire_start_position = self.board_obj.fire_start_position
 
             # create an environment 
             solution = Solution(problem_name=problem_name, model_name='SARSA')
@@ -238,8 +252,8 @@ class TDLearning():
         # load the board from a boards.py file 
         board = self.board_obj.original_board
         problem_name = 'MDP BUG CONTAINMENT'
-        agent_start_position = (3,3)
-        fire_start_position = (0,0)
+        agent_start_position = self.board_obj.agent_start_position
+        fire_start_position = self.board_obj.fire_start_position
         # create an environment 
         solution = Solution(problem_name=problem_name, model_name='SARSA')
         env = MDPStaticEnv(board=board, agent_start_position=agent_start_position, solution=solution, 
