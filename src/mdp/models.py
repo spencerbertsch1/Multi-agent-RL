@@ -301,7 +301,7 @@ def main():
                 plot_q_map=MDP.generate_plots,
                 alpha = 0.1,
                 gamma = 0.9, 
-                epsilon = 0.5, 
+                epsilon = 0.3, 
                 n_episodes = MDP.episodes)
     
     # test SARSA
