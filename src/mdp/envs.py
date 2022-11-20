@@ -281,10 +281,10 @@ class MDPStaticEnv():
         Small method that returns the reward given the current state, action pair
         """
         # reward for dropping phos chek in fire's path
-        # if ((action == 4) & (self.agent_position[0] == self.agent_position[1])):
+        # if ((action == 4) & (self.agent_position[0] == 2) & (self.agent_position[1] < 7)):
         #     # ^^ this second check is only useful because of the linear fire spread - remove for radial fire spread
         #     # here we calculate the reward based on the linear distance from the fire start location
-        #     R = 6
+        #     R = 20
         #     # here we center the linear surface on the position (1,1), so the maximal reward is achieved by dropping 
         #     # phos chek directly in front of the fire. Rewards for dropping phos check spread equally from this point. 
         #     abs_diff = abs(sum(self.agent_position) - 2)
@@ -293,13 +293,32 @@ class MDPStaticEnv():
         # else:
         #     return 0
 
-        # fire_centroid = self.centeroidnp()
-        fire_centroid = [2, 6]
-        if ((fire_centroid[0] == self.agent_position[0]) & (fire_centroid[1] == self.agent_position[1])):
-            return 200
-        else:
-            reward = 1/(math.dist(fire_centroid, self.agent_position))
-            return reward*100
+        R = 0
+        if (action == 3) & (self.agent_position[0] == 2):
+            R = 100
+        # if ((action == 3) & (self.agent_position[1] >= 7) & (self.agent_position[0] == 2)):
+        #     # ^^ this second check is only useful because of the linear fire spread - remove for radial fire spread
+        #     # here we calculate the reward based on the linear distance from the fire start location
+        #     R = 100
+        # elif ((action == 3) & (self.agent_position[1] < 7) & (self.agent_position[0] == 2)):
+        #     # here we center the linear surface on the position (1,1), so the maximal reward is achieved by dropping 
+        #     # phos chek directly in front of the fire. Rewards for dropping phos check spread equally from this point. 
+        #     R = 50
+        # elif ((action == 4) & (self.agent_position[1] < 7)):
+        #     R = 200
+        # elif (action == 1):
+        #     R = -100
+
+        return R
+
+
+        # # fire_centroid = self.centeroidnp()
+        # fire_centroid = [2, 6]
+        # if ((fire_centroid[0] == self.agent_position[0]) & (fire_centroid[1] == self.agent_position[1])):
+        #     return 200
+        # else:
+        #     reward = 1/(math.dist(fire_centroid, self.agent_position))
+        #     return reward*100
 
 def make_movie():
     """
