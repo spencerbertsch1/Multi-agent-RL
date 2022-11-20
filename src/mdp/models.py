@@ -4,18 +4,15 @@
 | ENGG 199.09 - Game Theory   |
 | Fall 2022                   |
 -------------------------------
-
 MDP Solution - Model Implementation
-
 This script contains implementations of single-agent reinforcement learning models such 
 as Q-learning and SARSA. 
-
 This script can be run from the command line using: $ models.py
 """
 # local imports 
 from envs import MDPStaticEnv
 from routines import Solution, write_animation
-from boards import board1
+from boards import board1, board2
 from settings import MDP, PATH_TO_MP4S, PATH_TO_POLICIES
 import random
 import time
@@ -25,24 +22,12 @@ import datetime
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import figure
+plt.style.use("seaborn-v0_8-notebook")
 
 class PolicyIteration:
 
-    def __init__(self, board_obj, problem_name: str, action_space: list, epsilon: float, plot_q_map: bool,
-                 alpha: float, gamma: float, n_episodes: int):
-        self.board_obj = board_obj
-        self.problem_name = problem_name
-        self.epsilon = epsilon
-        self.action_space = action_space
-        self.plot_q_map = plot_q_map
-        self.alpha = alpha
-        self.gamma = gamma
-        self.n_episodes = n_episodes
-
-    def TODO():
-        """
-        Write all of the methods needed for policy iteration here
-        """
+    def __init__(self):
         pass
 
 
@@ -178,8 +163,9 @@ class TDLearning():
         # use board to create initial Q-map 
         # Q_map: [NUM_ACTIONS, BOARD_Y, BOARD_X]
         Q_map = np.random.rand(len(self.action_space), board_y, board_x)
-        
+         
         # --- SARSA Algorithm --- 
+        reward_tracker = []
         for i in range(self.n_episodes):
 
             if i%10==0:
@@ -187,8 +173,8 @@ class TDLearning():
 
             problem_name = 'MDP BUG CONTAINMENT'
 
-            agent_start_position = self.board_obj.agent_start_position
-            fire_start_position = self.board_obj.fire_start_position
+            agent_start_position = (3,3)
+            fire_start_position = (0,0)
 
             # create an environment 
             solution = Solution(problem_name=problem_name, model_name='SARSA')
@@ -204,7 +190,9 @@ class TDLearning():
             # get action
             A = self.get_action(Q_map=Q_map, S=S, action_space=self.action_space)
 
+            idx = 0
             while env.solution.solved is False: 
+                idx += 1
                 # take the action
                 env.increment_time(action=A)
                 
@@ -226,8 +214,22 @@ class TDLearning():
                 S = S_prime
                 A = A_prime 
 
+            reward_tracker.append(idx)
+
         mean_q_map: np.array = np.mean(Q_map, axis=0)
         print(f'Stacked Q_map: \n {mean_q_map}')
+
+        # plot reward
+        # plt.plot(reward_tracker)
+        # plt.show()
+
+        figure(figsize=(14, 6), dpi=80)
+        plt.plot(reward_tracker, label = "Penalty", linestyle="-", color='blue', linewidth=2.5)
+        plt.title(f'Pentaly Over Traing Episodes, Bug Spread Coefficient: {MDP.wildfire_update_window}', fontsize=20)
+        plt.xlabel('Episode Number', fontsize=14)
+        plt.ylabel('Penalty for Episode (1/Final Reward)', fontsize=14)
+        plt.legend()
+        plt.show()
 
         if MDP.generate_plots: 
             sns.heatmap(mean_q_map, annot=True, linewidth=.5, cmap="crest")
@@ -252,8 +254,8 @@ class TDLearning():
         # load the board from a boards.py file 
         board = self.board_obj.original_board
         problem_name = 'MDP BUG CONTAINMENT'
-        agent_start_position = self.board_obj.agent_start_position
-        fire_start_position = self.board_obj.fire_start_position
+        agent_start_position = (3,3)
+        fire_start_position = (0,0)
         # create an environment 
         solution = Solution(problem_name=problem_name, model_name='SARSA')
         env = MDPStaticEnv(board=board, agent_start_position=agent_start_position, solution=solution, 
@@ -291,17 +293,18 @@ class TDLearning():
         mov_fname: str = f'static-env-{timestamp}.mp4'
         MOV_PATH = PATH_TO_MP4S / mov_fname
         write_animation(itr=env_itr, out_file=MOV_PATH)
+    
 
 def main():
 
     # define the SARSA model with all of the necessary environment parameters 
     clf = TDLearning(problem_name='Contain the Bug!', 
-                board_obj = board1, 
+                board_obj = board2, 
                 action_space = [0, 1, 2, 3, 4], 
                 plot_q_map=MDP.generate_plots,
-                alpha = 0.1,
+                alpha = 0.3,
                 gamma = 0.9, 
-                epsilon = 0.3, 
+                epsilon = 0.5, 
                 n_episodes = MDP.episodes)
     
     # test SARSA
