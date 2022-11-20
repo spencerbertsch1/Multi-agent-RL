@@ -252,7 +252,7 @@ def main():
                 alpha = 0.1,
                 gamma = 0.9, 
                 epsilon = 0.5, 
-                n_episodes = 50)
+                n_episodes = 100)
     
     # test SARSA
     clf.sarsa()
