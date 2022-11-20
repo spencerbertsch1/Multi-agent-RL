@@ -27,6 +27,18 @@ class board1:
     fire_start_position = (2,0)
 
 
+class board2:
+    board = np.array([[0, 0, 0, 0], 
+                      [0, 0, 0, 0],
+                      [0, 0, 0, 0], 
+                      [0, 0, 0, 0]])
+    original_board = board.copy()
+    board_x = board.shape[1]
+    board_y = board.shape[0]
+    agent_start_position = (3, 3)
+    fire_start_position = (0,0)
+
+
 # some plotting code 
 if __name__ == "__main__":
     import numpy as np
