@@ -25,7 +25,7 @@ from datetime import datetime
 # local imports 
 from routines import write_animation, Solution
 
-from mdp.settings import Configs, PATH_TO_MP4S
+from settings import Configs, PATH_TO_MP4S
 
 
 class StaticEnv():
