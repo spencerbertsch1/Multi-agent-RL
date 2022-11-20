@@ -51,3 +51,15 @@ class board3:
     board_y = board.shape[0]
     start_position = (6,0)
     goal_positions = ((0, 4), (6, 4))
+
+
+
+# some plotting code 
+if __name__ == "__main__":
+    import numpy as np
+    import seaborn as sns
+    import matplotlib.pylab as plt
+
+    data = board3.board
+    ax = sns.heatmap(data, linewidth=0.5,  cmap="YlGnBu")
+    plt.show()

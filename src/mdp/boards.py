@@ -23,5 +23,16 @@ class board1:
     original_board = board.copy()
     board_x = board.shape[1]
     board_y = board.shape[0]
-    agent_start_position = (4,10)
+    agent_start_position = (2,7)
     fire_start_position = (2,0)
+
+
+# some plotting code 
+if __name__ == "__main__":
+    import numpy as np
+    import seaborn as sns
+    import matplotlib.pylab as plt
+
+    data = board1.board
+    ax = sns.heatmap(data, linewidth=0.5,  cmap="YlGnBu")
+    plt.show()
