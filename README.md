@@ -24,7 +24,7 @@ In order to run any of the test scripts in this repository, you will need python
 ## How to run the single-agent goal seek problem: 
 
 1. `cd` into the `single-agent` directory by running the following command:
-   1. `$ cd src`
+   1. `$ cd single-agent`
 
 2. Run `models.py` by running the following command:
    1. `$ python3 models.py`
@@ -54,7 +54,7 @@ Stacked Q_map:
 In addition you should see the following plot: 
 
  <p align="center">
-    <img src="https://github.com/spencerbertsch1/Multi-agent-RL/blob/main/src/diagrams/single_agent.png?raw=true" alt="single_agent" width="60%"/>
+    <img src="https://github.com/spencerbertsch1/Multi-agent-RL/blob/main/src/diagrams/single_agent.png?raw=true" alt="single_agent" width="40%"/>
 </p>
 
 ## How to run the single-agent MDP problem: 
@@ -83,11 +83,13 @@ Stacked Q_map:
  [ 1.165653    4.7317372   6.07682824  5.36635993]]
  ```
 
-In addition you should see the following plots showing the final policy after only 50 training episodes and the learning curve showing how much trouble this agent-environment configuration has in converging over only 50 episodes. 
+In addition you should see the following plots showing the final policy after only 50 training episodes and the learning curve. 
 
  <p align="center">
-    <img src="https://github.com/spencerbertsch1/Multi-agent-RL/blob/main/src/diagrams/mdp.png?raw=true" alt="big graph" width="60%"/>
+    <img src="https://github.com/spencerbertsch1/Multi-agent-RL/blob/main/src/diagrams/mdp.png?raw=true" alt="big graph" width="40%"/>
 </p>
+
+Here we can see that with a relatively slow spread of the bugs through the environment, the farming agent is able to converge on the optimal solution quite quickly and reduce the overall penalty before reaching 10 iterations. 
 
  <p align="center">
     <img src="https://github.com/spencerbertsch1/Multi-agent-RL/blob/main/src/diagrams/learning_curve.png?raw=true" alt="big graph" width="60%"/>
