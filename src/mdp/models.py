@@ -23,7 +23,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
-plt.style.use("seaborn-v0_8-notebook")
+# plt.style.use("seaborn-v0_8-notebook")
 
 class PolicyIteration:
 
