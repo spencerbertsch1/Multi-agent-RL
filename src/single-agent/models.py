@@ -246,7 +246,7 @@ def main():
 
     # define the SARSA model with all of the necessary environment parameters 
     clf = TDLearning(problem_name='Static Goal Seek', 
-                board_obj = board3, 
+                board_obj = board1, 
                 action_space = [0, 1, 2, 3], 
                 plot_q_map=True,
                 alpha = 0.1,
